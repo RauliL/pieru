@@ -1,5 +1,13 @@
 # pieru
 
+[![github][github-image]][github-url]
+[![coveralls][coveralls-image]][coveralls-url]
+
+[github-image]: https://github.com/RauliL/pieru/actions/workflows/test.yml/badge.svg
+[github-url]: https://github.com/RauliL/pieru/actions/workflows/test.yml
+[coveralls-image]: https://coveralls.io/repos/github/RauliL/pieru/badge.svg
+[coveralls-url]: https://coveralls.io/github/RauliL/pieru
+
 MongoDB query compatible object match.
 
 ## Installation
@@ -26,8 +34,9 @@ match({ name: 'example', qty: 10, price: 65.10 });    // -> true
 match({ name: 'bla', qty: 10, price: 30.10 });        // -> false
 ```
 
-Please check out the [query selector](http://docs.mongodb.org/manual/reference/operators/#query-selectors) section
-in the mongo db reference.
+Please check out the [query selector] section in the MongoDB documentation.
+
+[query selector]: http://docs.mongodb.org/manual/reference/operators/#query-selectors
 
 ### Supported operators
 

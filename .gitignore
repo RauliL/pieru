@@ -1,4 +1,5 @@
-node_modules
-components
-build
-.idea
+/dist
+/node_modules
+/.vscode
+*.log
+*.tgz

@@ -1,24 +1,19 @@
 # qry
-[![Build Status](https://travis-ci.org/manuelstofer/qry.png?branch=master)](https://travis-ci.org/manuelstofer/qry)
 
-MongoDB query compatible object match
+MongoDB query compatible object match.
 
 ## Installation
 
 ```bash
-npm install qry
-```
-
-```bash
-component install manuelstofer/qry
+$ npm install qry
 ```
 
 ## Usage
 
 ```Javascript
-var qry = require('qry');
+import { createQuery } from 'qry';
 
-var match = qry({
+const match = createQuery({
     name: {$exists: true},
     qty: {$gt: 3},
     $and: [
@@ -51,5 +46,5 @@ The following operators are currently not supported:
 The $where operator is supported but disabled by default (security).
 
 ```Javascript
-var match = qry(query, {$where: true});
+const match = createQuery(query, {$where: true});
 ```

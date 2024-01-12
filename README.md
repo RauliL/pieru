@@ -18,20 +18,20 @@ $ npm install pieru
 
 ## Usage
 
-```Javascript
-import { createQuery } from 'pieru';
+```JavaScript
+import { match } from 'pieru';
 
-const match = createQuery({
-    name: {$exists: true},
-    qty: {$gt: 3},
-    $and: [
-        { price: { $lt: 100 } },
-        { price: { $gt: 50 } },
-    ],
-});
+const query = {
+  name: { $exists: true },
+  qty: { $gt: 3 },
+  $and: [
+    { price: { $lt: 100 } },
+    { price: { $gt: 50 } },
+  ],
+};
 
-match({ name: 'example', qty: 10, price: 65.10 });    // -> true
-match({ name: 'bla', qty: 10, price: 30.10 });        // -> false
+match({ name: 'example', qty: 10, price: 65.10 }, query);    // -> true
+match({ name: 'bla', qty: 10, price: 30.10 }, query);        // -> false
 ```
 
 Please check out the [query selector] section in the MongoDB documentation.
@@ -53,6 +53,6 @@ The following operators are currently not supported:
 
 The $where operator is supported but disabled by default (security).
 
-```Javascript
-const match = createQuery(query, { $where: true });
+```JavaScript
+const isMatch = match(obj, query, { $where: true });
 ```

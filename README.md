@@ -1,34 +1,33 @@
-# qry
+# pieru
 
 MongoDB query compatible object match.
 
 ## Installation
 
 ```bash
-$ npm install qry
+$ npm install pieru
 ```
 
 ## Usage
 
 ```Javascript
-import { createQuery } from 'qry';
+import { createQuery } from 'pieru';
 
 const match = createQuery({
     name: {$exists: true},
     qty: {$gt: 3},
     $and: [
-        {price: {$lt: 100}},
-        {price: {$gt: 50}}
-    ]
+        { price: { $lt: 100 } },
+        { price: { $gt: 50 } },
+    ],
 });
 
-match({name: 'example', qty: 10, price: 65.10});    // -> true
-match({name: 'bla', qty: 10, price: 30.10});        // -> false
+match({ name: 'example', qty: 10, price: 65.10 });    // -> true
+match({ name: 'bla', qty: 10, price: 30.10 });        // -> false
 ```
 
 Please check out the [query selector](http://docs.mongodb.org/manual/reference/operators/#query-selectors) section
 in the mongo db reference.
-
 
 ### Supported operators
 
@@ -46,5 +45,5 @@ The following operators are currently not supported:
 The $where operator is supported but disabled by default (security).
 
 ```Javascript
-const match = createQuery(query, {$where: true});
+const match = createQuery(query, { $where: true });
 ```

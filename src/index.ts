@@ -168,9 +168,8 @@ const functions: Readonly<
     if (typeof fn === "function") {
       return !!fn.call(obj, obj);
     }
-    fn = new Function("obj", fn);
 
-    return !!fn.call(obj, obj);
+    return !!new Function("obj", fn).call(obj, obj);
   },
 
   $elemMatch(
@@ -265,9 +264,9 @@ const matchQueryObject = (
   return true;
 };
 
-export function match<Q extends Query>(
+export function match(
   obj: any,
-  query: Q | ReadonlyArray<any> | RegExp,
+  query: Query | ReadonlyArray<any> | RegExp,
   options: QueryOptions = { $where: false },
 ): boolean {
   if (query instanceof RegExp) {

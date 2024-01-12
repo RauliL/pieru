@@ -1,4 +1,4 @@
-import { match } from "./index";
+import { Query, match, QueryOptions } from "./index";
 
 describe("match()", () => {
   it("true when equal", function () {
@@ -55,7 +55,7 @@ describe("match()", () => {
   });
 
   it("false for incorrect nested equal test", () => {
-    const query = { bla: true, nested: { bla: true } };
+    const query: Query = { bla: true, nested: { bla: true } };
 
     expect(match({ bla: false, nested: { bla: true } }, query)).toBe(false);
     expect(match({ bla: true, nested: { bla: false } }, query)).toBe(false);
@@ -63,14 +63,14 @@ describe("match()", () => {
   });
 
   it("$all", () => {
-    const query = { numbers: { $all: [5, 7] } };
+    const query: Query = { numbers: { $all: [5, 7] } };
 
     expect(match({ numbers: [1, 2, 3, 5, 6, 7, 10] }, query)).toBe(true);
     expect(match({ numbers: [1, 2, 3, 6, 7, 10] }, query)).toBe(false);
   });
 
   it("$gte", () => {
-    const query = { example: { $gte: 1 } };
+    const query: Query = { example: { $gte: 1 } };
 
     expect(match({ example: 1.1 }, query)).toBe(true);
     expect(match({ example: 1 }, query)).toBe(true);
@@ -78,14 +78,14 @@ describe("match()", () => {
   });
 
   it("$in", () => {
-    const query = { example: { $in: [1, 2, 3] } };
+    const query: Query = { example: { $in: [1, 2, 3] } };
 
     expect(match({ example: 1 }, query)).toBe(true);
     expect(match({ example: 1.5 }, query)).toBe(false);
   });
 
   it("$lte", () => {
-    const query = { example: { $lte: 1 } };
+    const query: Query = { example: { $lte: 1 } };
 
     expect(match({ example: 1.1 }, query)).toBe(false);
     expect(match({ example: 1 }, query)).toBe(true);
@@ -93,15 +93,15 @@ describe("match()", () => {
   });
 
   it("$ne", () => {
-    const query = { example: { $ne: 1 } };
+    const query: Query = { example: { $ne: 1 } };
 
     expect(match({ example: 1 }, query)).toBe(false);
     expect(match({ example: 2 }, query)).toBe(true);
   });
 
   it("$nin", () => {
-    const query1 = { example: { $nin: [undefined] } };
-    const query2 = { example: { $nin: [1, 2, 3] } };
+    const query1: Query = { example: { $nin: [undefined] } };
+    const query2: Query = { example: { $nin: [1, 2, 3] } };
 
     expect(match({}, query1)).toBe(true);
     expect(match({ example: 2 }, query2)).toBe(false);
@@ -109,7 +109,7 @@ describe("match()", () => {
   });
 
   it("$and", () => {
-    const query = {
+    const query: Query = {
       $and: [{ example: { $gt: 3 } }, { example: { $lt: 10 } }],
     };
 
@@ -118,14 +118,16 @@ describe("match()", () => {
   });
 
   it("$not", () => {
-    const query = { $not: { example: { $lt: 3 } } };
+    const query: Query = { $not: { example: { $lt: 3 } } };
 
     expect(match({ example: 5 }, query)).toBe(true);
     expect(match({ example: 2 }, query)).toBe(false);
   });
 
   it("$or", () => {
-    const query = { $or: [{ example: { $lt: 3 } }, { example: { $gt: 10 } }] };
+    const query: Query = {
+      $or: [{ example: { $lt: 3 } }, { example: { $gt: 10 } }],
+    };
 
     expect(match({ example: 11 }, query)).toBe(true);
     expect(match({ example: 2 }, query)).toBe(true);
@@ -133,8 +135,8 @@ describe("match()", () => {
   });
 
   it("$exists", () => {
-    const query1 = { example: { $exists: true } };
-    const query2 = { example: { $exists: false } };
+    const query1: Query = { example: { $exists: true } };
+    const query2: Query = { example: { $exists: false } };
 
     expect(match({ example: 11 }, query1)).toBe(true);
     expect(match({}, query1)).toBe(false);
@@ -144,14 +146,14 @@ describe("match()", () => {
   });
 
   it("$mod", () => {
-    const query = { example: { $mod: [4, 1] } };
+    const query: Query = { example: { $mod: [4, 1] } };
 
     expect(match({ example: 5 }, query)).toBe(true);
     expect(match({ example: 4 }, query)).toBe(false);
   });
 
   it("$regex", () => {
-    const query = { example: { $regex: "^hello", $options: "i" } };
+    const query: Query = { example: { $regex: "^hello", $options: "i" } };
 
     expect(match({ example: "Hello bla" }, query)).toBe(true);
     expect(match({ example: "hello" }, query)).toBe(true);
@@ -159,7 +161,7 @@ describe("match()", () => {
   });
 
   it("$regex (native)", () => {
-    const query = { example: /^hello/i };
+    const query: Query = { example: /^hello/i };
 
     expect(match({ example: "Hello bla" }, query)).toBe(true);
     expect(match({ example: "hello" }, query)).toBe(true);
@@ -167,31 +169,33 @@ describe("match()", () => {
   });
 
   it("$where (obj)", () => {
-    const query = { $where: (obj: any) => obj.x === 2 };
-    const options = { $where: true };
+    const query: Query = { $where: (obj: any) => obj.x === 2 };
+    const options: QueryOptions = { $where: true };
 
     expect(match({ x: 2 }, query, options)).toBe(true);
     expect(match({ x: 3 }, query, options)).toBe(false);
   });
 
   it("$where (str)", () => {
-    const query = { $where: "return this.x === 2;" };
-    const options = { $where: true };
+    const query: Query = { $where: "return this.x === 2;" };
+    const options: QueryOptions = { $where: true };
 
     expect(match({ x: 2 }, query, options)).toBe(true);
     expect(match({ x: 3 }, query, options)).toBe(false);
   });
 
   it("$where (str, obj)", () => {
-    const query = { $where: "return this.x === 2;" };
-    const options = { $where: true };
+    const query: Query = { $where: "return this.x === 2;" };
+    const options: QueryOptions = { $where: true };
 
     expect(match({ x: 2 }, query, options)).toBe(true);
     expect(match({ x: 3 }, query, options)).toBe(false);
   });
 
   it("$elemMatch", () => {
-    const query = { array: { $elemMatch: { value1: 1, value2: { $gt: 1 } } } };
+    const query: Query = {
+      array: { $elemMatch: { value1: 1, value2: { $gt: 1 } } },
+    };
 
     expect(
       match(
@@ -218,14 +222,14 @@ describe("match()", () => {
   });
 
   it("$size", () => {
-    const query = { array: { $size: 2 } };
+    const query: Query = { array: { $size: 2 } };
 
     expect(match({ array: [1, 2] }, query)).toBe(true);
     expect(match({ array: [1, 2, 3] }, query)).toBe(false);
   });
 
   it("example", () => {
-    const query = {
+    const query: Query = {
       name: { $exists: true },
       qty: { $gt: 3 },
       $and: [{ price: { $lt: 100 } }, { price: { $gt: 50 } }],

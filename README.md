@@ -1,12 +1,15 @@
-# pieru
+# pieru 💨
 
 [![github][github-image]][github-url]
 [![coveralls][coveralls-image]][coveralls-url]
+[![npm][npm-image]][npm-url]
 
 [github-image]: https://github.com/RauliL/pieru/actions/workflows/test.yml/badge.svg
 [github-url]: https://github.com/RauliL/pieru/actions/workflows/test.yml
 [coveralls-image]: https://coveralls.io/repos/github/RauliL/pieru/badge.svg
 [coveralls-url]: https://coveralls.io/github/RauliL/pieru
+[npm-image]: https://img.shields.io/npm/v/pieru
+[npm-url]: https://www.npmjs.com/package/pieru
 
 MongoDB query compatible object match.
 
@@ -30,8 +33,8 @@ const query = {
   ],
 };
 
-match({ name: 'example', qty: 10, price: 65.10 }, query);    // -> true
-match({ name: 'bla', qty: 10, price: 30.10 }, query);        // -> false
+match({ name: 'example', qty: 10, price: 65.10 }, query); // -> true
+match({ name: 'bla', qty: 10, price: 30.10 }, query);     // -> false
 ```
 
 Please check out the [query selector] section in the MongoDB documentation.

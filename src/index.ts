@@ -31,12 +31,16 @@ export type QueryOptions = {
   $where: boolean;
 };
 
-const functions: Readonly<
-  Record<
-    string,
-    (obj: any, operator: any, query: Query, options: QueryOptions) => boolean
-  >
-> = {
+type FilterFunction = (
+  obj: any,
+  operator: any,
+  query: Query,
+  options: Readonly<QueryOptions>,
+) => boolean;
+
+type FilterMapping = Record<string, FilterFunction>;
+
+const functions: Readonly<FilterMapping> = {
   $all(obj: any, value: ReadonlyArray<any>): boolean {
     if (!Array.isArray(value) || !Array.isArray(obj)) {
       return false;
@@ -87,7 +91,7 @@ const functions: Readonly<
     obj: any,
     conditions: ReadonlyArray<Query>,
     query: Query,
-    options: QueryOptions,
+    options: Readonly<QueryOptions>,
   ): boolean {
     for (const condition of conditions) {
       if (!match(obj, condition, options)) {
@@ -102,7 +106,7 @@ const functions: Readonly<
     obj: any,
     conditions: ReadonlyArray<Query>,
     query: Query,
-    options: QueryOptions,
+    options: Readonly<QueryOptions>,
   ): boolean {
     for (const condition of conditions) {
       if (match(obj, condition, options)) {
@@ -117,7 +121,7 @@ const functions: Readonly<
     obj: any,
     condition: Query,
     query: Query,
-    options: QueryOptions,
+    options: Readonly<QueryOptions>,
   ): boolean {
     return !match(obj, condition, options);
   },
@@ -126,7 +130,7 @@ const functions: Readonly<
     obj: any,
     conditions: ReadonlyArray<Query>,
     query: Query,
-    options: QueryOptions,
+    options: Readonly<QueryOptions>,
   ): boolean {
     for (const condition of conditions) {
       if (match(obj, condition, options)) {
@@ -159,7 +163,7 @@ const functions: Readonly<
     obj: any,
     fn: string | Function,
     query: Query,
-    options: QueryOptions,
+    options: Readonly<QueryOptions>,
   ): boolean {
     if (!options.$where) {
       return false;
@@ -176,7 +180,7 @@ const functions: Readonly<
     array: any,
     query: Query,
     q: Query,
-    options: QueryOptions,
+    options: Readonly<QueryOptions>,
   ): boolean {
     for (const element of array) {
       if (match(element, query, options)) {
@@ -239,7 +243,7 @@ const getDotNotationProp = (obj: any, key: string): any => {
 const matchQueryObject = (
   obj: any,
   query: Query,
-  options: QueryOptions,
+  options: Readonly<QueryOptions>,
 ): boolean => {
   for (const key in query) {
     if (Object.prototype.hasOwnProperty.call(functions, key)) {
@@ -267,7 +271,7 @@ const matchQueryObject = (
 export function match(
   obj: any,
   query: Query | ReadonlyArray<any> | RegExp,
-  options: QueryOptions = { $where: false },
+  options: Readonly<QueryOptions> = { $where: false },
 ): boolean {
   if (query instanceof RegExp) {
     return query.test(obj);

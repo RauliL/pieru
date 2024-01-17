@@ -273,7 +273,7 @@ export function match(
     return query.test(obj);
   }
 
-  if (query instanceof Array) {
+  if (Array.isArray(query)) {
     return matchArray(obj, query);
   }
 

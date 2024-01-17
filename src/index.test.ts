@@ -54,6 +54,18 @@ describe("match()", () => {
     ).toBe(true);
   });
 
+  it("true for correct nested equal test with dot notation", () => {
+    expect(match({ nested: { bla: true } }, { "nested.bla": true })).toBe(
+      true,
+    );
+  });
+
+  it("false for correct nested equal test with dot notation", () => {
+    expect(match({ nested: { bla: false } }, { "nested.bla": true })).toBe(
+      false,
+    );
+  });
+
   it("false for incorrect nested equal test", () => {
     const query: Query = { bla: true, nested: { bla: true } };
 
@@ -190,6 +202,10 @@ describe("match()", () => {
 
     expect(match({ x: 2 }, query, options)).toBe(true);
     expect(match({ x: 3 }, query, options)).toBe(false);
+  });
+
+  it("$where with $where disabled", () => {
+    expect(match({ x: 2 }, { $where: (obj: any) => obj.x === 2 })).toBe(false);
   });
 
   it("$elemMatch", () => {

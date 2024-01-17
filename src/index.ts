@@ -38,12 +38,12 @@ const functions: Readonly<
   >
 > = {
   $all(obj: any, value: ReadonlyArray<any>): boolean {
-    if (!(value instanceof Array) || !(obj instanceof Array)) {
+    if (!Array.isArray(value) || !Array.isArray(obj)) {
       return false;
     }
 
-    for (let i = 0; i < value.length; i++) {
-      if (obj.indexOf(value[i]) === -1) {
+    for (const element of value) {
+      if (obj.indexOf(element) === -1) {
         return false;
       }
     }
@@ -89,8 +89,8 @@ const functions: Readonly<
     query: Query,
     options: QueryOptions,
   ): boolean {
-    for (let i = 0; i < conditions.length; ++i) {
-      if (!match(obj, conditions[i], options)) {
+    for (const condition of conditions) {
+      if (!match(obj, condition, options)) {
         return false;
       }
     }
@@ -104,8 +104,8 @@ const functions: Readonly<
     query: Query,
     options: QueryOptions,
   ): boolean {
-    for (let i = 0; i < conditions.length; ++i) {
-      if (match(obj, conditions[i], options)) {
+    for (const condition of conditions) {
+      if (match(obj, condition, options)) {
         return false;
       }
     }
@@ -128,8 +128,8 @@ const functions: Readonly<
     query: Query,
     options: QueryOptions,
   ): boolean {
-    for (let i = 0; i < conditions.length; ++i) {
-      if (match(obj, conditions[i], options)) {
+    for (const condition of conditions) {
+      if (match(obj, condition, options)) {
         return true;
       }
     }
@@ -178,8 +178,8 @@ const functions: Readonly<
     q: Query,
     options: QueryOptions,
   ): boolean {
-    for (let i = 0; i < array.length; i++) {
-      if (match(array[i], query, options)) {
+    for (const element of array) {
+      if (match(element, query, options)) {
         return true;
       }
     }
@@ -201,7 +201,7 @@ const matchArray = (
   obj: ReadonlyArray<any>,
   query: ReadonlyArray<any>,
 ): boolean => {
-  if (!(obj instanceof Array)) {
+  if (!Array.isArray(obj)) {
     return false;
   }
 
@@ -242,9 +242,11 @@ const matchQueryObject = (
   options: QueryOptions,
 ): boolean => {
   for (const key in query) {
-    if (key in functions) {
-      // runs the match function
-      if (!functions[key]?.(obj, query[key], query, options)) {
+    const callback = functions[key];
+
+    if (typeof callback === "function") {
+      // Runs the match function.
+      if (!callback(obj, query[key], query, options)) {
         return false;
       }
     } else {
@@ -254,7 +256,7 @@ const matchQueryObject = (
         value = getDotNotationProp(obj, key);
       }
 
-      // recursive run match for an attribute
+      // Recursive run match for an attribute.
       if (!match(value, query[key])) {
         return false;
       }

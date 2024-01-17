@@ -242,11 +242,9 @@ const matchQueryObject = (
   options: QueryOptions,
 ): boolean => {
   for (const key in query) {
-    const callback = functions[key];
-
-    if (typeof callback === "function") {
+    if (Object.prototype.hasOwnProperty.call(functions, key)) {
       // Runs the match function.
-      if (!callback(obj, query[key], query, options)) {
+      if (!functions[key](obj, query[key], query, options)) {
         return false;
       }
     } else {

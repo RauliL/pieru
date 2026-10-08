@@ -1,3 +1,5 @@
+import { FilterFunctionName, QueryOptions } from "./types.js";
+
 export type Query = Record<string, any> & {
   // Comparison operators.
   $eq?: any;
@@ -27,10 +29,6 @@ export type Query = Record<string, any> & {
   $elemMatch?: Query;
 };
 
-export type QueryOptions = {
-  $where: boolean;
-};
-
 type FilterFunction = (
   obj: any,
   operator: any,
@@ -38,163 +36,174 @@ type FilterFunction = (
   options: Readonly<QueryOptions>,
 ) => boolean;
 
-type FilterMapping = Record<string, FilterFunction>;
-
-const functions: Readonly<FilterMapping> = {
-  $all(obj: any, value: ReadonlyArray<any>): boolean {
-    if (!Array.isArray(value) || !Array.isArray(obj)) {
-      return false;
-    }
-
-    for (const element of value) {
-      if (obj.indexOf(element) === -1) {
+const functions: Map<FilterFunctionName, FilterFunction> = new Map([
+  [
+    "$all",
+    (obj: any, value: ReadonlyArray<any>): boolean => {
+      if (!Array.isArray(value) || !Array.isArray(obj)) {
         return false;
       }
-    }
 
-    return true;
-  },
+      for (const element of value) {
+        if (obj.indexOf(element) === -1) {
+          return false;
+        }
+      }
 
-  $gt(obj: any, value: any): boolean {
-    return obj > value;
-  },
-
-  $gte(obj: any, value: any): boolean {
-    return obj >= value;
-  },
-
-  $in(obj: any, value: any): boolean {
-    return value.indexOf(obj) !== -1;
-  },
-
-  $lt(obj: any, value: any): boolean {
-    return obj < value;
-  },
-
-  $lte(obj: any, value: any): boolean {
-    return obj <= value;
-  },
-
-  $ne(obj: any, value: any): boolean {
-    return obj !== value;
-  },
-
-  $nin(obj: any, value: ReadonlyArray<any>): boolean {
-    if (typeof obj === "undefined") {
       return true;
-    }
+    },
+  ],
 
-    return value.indexOf(obj) === -1;
-  },
+  ["$gt", (obj: any, value: any): boolean => obj > value],
 
-  $and(
-    obj: any,
-    conditions: ReadonlyArray<Query>,
-    query: Query,
-    options: Readonly<QueryOptions>,
-  ): boolean {
-    for (const condition of conditions) {
-      if (!match(obj, condition, options)) {
-        return false;
-      }
-    }
+  ["$gte", (obj: any, value: any): boolean => obj >= value],
 
-    return true;
-  },
+  ["$in", (obj: any, value: any): boolean => value.indexOf(obj) !== -1],
 
-  $nor(
-    obj: any,
-    conditions: ReadonlyArray<Query>,
-    query: Query,
-    options: Readonly<QueryOptions>,
-  ): boolean {
-    for (const condition of conditions) {
-      if (match(obj, condition, options)) {
-        return false;
-      }
-    }
+  ["$lt", (obj: any, value: any): boolean => obj < value],
 
-    return true;
-  },
+  ["$lte", (obj: any, value: any): boolean => obj <= value],
 
-  $not(
-    obj: any,
-    condition: Query,
-    query: Query,
-    options: Readonly<QueryOptions>,
-  ): boolean {
-    return !match(obj, condition, options);
-  },
+  ["$ne", (obj: any, value: any): boolean => obj !== value],
 
-  $or(
-    obj: any,
-    conditions: ReadonlyArray<Query>,
-    query: Query,
-    options: Readonly<QueryOptions>,
-  ): boolean {
-    for (const condition of conditions) {
-      if (match(obj, condition, options)) {
+  [
+    "$nin",
+    (obj: any, value: ReadonlyArray<any>): boolean => {
+      if (typeof obj === "undefined") {
         return true;
       }
-    }
 
-    return false;
-  },
+      return value.indexOf(obj) === -1;
+    },
+  ],
 
-  $exists(obj: any, mustExist: boolean): boolean {
-    return (typeof obj !== "undefined") === mustExist;
-  },
+  [
+    "$and",
+    (
+      obj: any,
+      conditions: ReadonlyArray<Query>,
+      query: Query,
+      options: Readonly<QueryOptions>,
+    ): boolean => {
+      for (const condition of conditions) {
+        if (!match(obj, condition, options)) {
+          return false;
+        }
+      }
 
-  $mod(obj: any, [divisor, remainder]: [number, number]): boolean {
-    return obj % divisor === remainder;
-  },
+      return true;
+    },
+  ],
 
-  $regex(obj: any, regex: any, query: Query): boolean {
-    const options = query.$options;
+  [
+    "$nor",
+    (
+      obj: any,
+      conditions: ReadonlyArray<Query>,
+      query: Query,
+      options: Readonly<QueryOptions>,
+    ): boolean => {
+      for (const condition of conditions) {
+        if (match(obj, condition, options)) {
+          return false;
+        }
+      }
 
-    return new RegExp(regex, options).test(obj);
-  },
+      return true;
+    },
+  ],
 
-  $options(): boolean {
-    return true;
-  },
+  [
+    "$not",
+    (
+      obj: any,
+      condition: Query,
+      query: Query,
+      options: Readonly<QueryOptions>,
+    ): boolean => !match(obj, condition, options),
+  ],
 
-  $where(
-    obj: any,
-    fn: string | Function,
-    query: Query,
-    options: Readonly<QueryOptions>,
-  ): boolean {
-    if (!options.$where) {
+  [
+    "$or",
+    (
+      obj: any,
+      conditions: ReadonlyArray<Query>,
+      query: Query,
+      options: Readonly<QueryOptions>,
+    ): boolean => {
+      for (const condition of conditions) {
+        if (match(obj, condition, options)) {
+          return true;
+        }
+      }
+
       return false;
-    }
+    },
+  ],
 
-    if (typeof fn === "function") {
-      return !!fn.call(obj, obj);
-    }
+  [
+    "$exists",
+    (obj: any, mustExist: boolean): boolean =>
+      (typeof obj !== "undefined") === mustExist,
+  ],
 
-    return !!new Function("obj", fn).call(obj, obj);
-  },
+  [
+    "$mod",
+    (obj: any, [divisor, remainder]: [number, number]): boolean =>
+      obj % divisor === remainder,
+  ],
 
-  $elemMatch(
-    array: any,
-    query: Query,
-    q: Query,
-    options: Readonly<QueryOptions>,
-  ): boolean {
-    for (const element of array) {
-      if (match(element, query, options)) {
-        return true;
+  [
+    "$regex",
+    (obj: any, regex: any, query: Query): boolean => {
+      const options = query.$options;
+
+      return new RegExp(regex, options).test(obj);
+    },
+  ],
+
+  ["$options", (): boolean => true],
+
+  [
+    "$where",
+    (
+      obj: any,
+      fn: string | Function,
+      query: Query,
+      options: Readonly<QueryOptions>,
+    ): boolean => {
+      if (!options.$where) {
+        return false;
       }
-    }
 
-    return false;
-  },
+      if (typeof fn === "function") {
+        return !!fn.call(obj, obj);
+      }
 
-  $size(array: any, length: number): boolean {
-    return array.length === length;
-  },
-};
+      return !!new Function("obj", fn).call(obj, obj);
+    },
+  ],
+
+  [
+    "$elemMatch",
+    (
+      array: any,
+      query: Query,
+      q: Query,
+      options: Readonly<QueryOptions>,
+    ): boolean => {
+      for (const element of array) {
+        if (match(element, query, options)) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+  ],
+
+  ["$size", (array: any, length: number): boolean => array.length === length],
+] as [FilterFunctionName, FilterFunction][]);
 
 /***
  * Tests if obj is equal to query.
@@ -246,9 +255,11 @@ const matchQueryObject = (
   options: Readonly<QueryOptions>,
 ): boolean => {
   for (const key in query) {
-    if (Object.prototype.hasOwnProperty.call(functions, key)) {
+    const callback = functions.get(key);
+
+    if (callback) {
       // Runs the match function.
-      if (!functions[key](obj, query[key], query, options)) {
+      if (!callback(obj, query[key], query, options)) {
         return false;
       }
     } else {

@@ -12,6 +12,7 @@
   ],
   "license": "MIT",
   "author": "Manuel Stofer <manuel@takimata.ch>",
+  "type": "module",
   "main": "./dist/index.js",
   "main:src": "./src/index.ts",
   "types": "./dist/index.d.ts",

@@ -28,6 +28,8 @@ export type QueryFunctionMapping = {
   $elemMatch: Query;
 };
 
+export type QueryFunctionName = keyof QueryFunctionMapping;
+
 export type Query = Record<string, any> & Partial<QueryFunctionMapping>;
 
 export type QueryOptions = {

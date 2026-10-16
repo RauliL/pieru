@@ -1,4 +1,4 @@
-import { Query, QueryOptions } from "./types.js";
+import { Query, QueryFunctionName, QueryOptions } from "./types.js";
 
 type FilterFunction = (
   obj: any,
@@ -7,7 +7,7 @@ type FilterFunction = (
   options: Readonly<QueryOptions>,
 ) => boolean;
 
-type FilterMapping = Record<string, FilterFunction>;
+type FilterMapping = Record<QueryFunctionName, FilterFunction>;
 
 const functions: Readonly<FilterMapping> = {
   $all(obj: any, value: ReadonlyArray<any>): boolean {
@@ -220,8 +220,10 @@ const matchQueryObject = (
 ): boolean => {
   for (const key in query) {
     if (Object.prototype.hasOwnProperty.call(functions, key)) {
+      const callback = Reflect.get(functions, key);
+
       // Runs the match function.
-      if (!functions[key](obj, query[key], query, options)) {
+      if (!callback(obj, query[key], query, options)) {
         return false;
       }
     } else {

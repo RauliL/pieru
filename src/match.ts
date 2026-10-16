@@ -24,6 +24,10 @@ const functions: Readonly<FilterMapping> = {
     return true;
   },
 
+  $eq(obj: any, value: any): boolean {
+    return obj === value;
+  },
+
   $gt(obj: any, value: any): boolean {
     return obj > value;
   },

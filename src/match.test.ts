@@ -107,6 +107,13 @@ describe("match()", () => {
     expect(match({ example: 0.9 }, query)).toBe(true);
   });
 
+  it("$eq", () => {
+    const query: Query = { example: { $eq: 1 } };
+
+    expect(match({ example: 1 }, query)).toBe(true);
+    expect(match({ example: 2 }, query)).toBe(false);
+  });
+
   it("$ne", () => {
     const query: Query = { example: { $ne: 1 } };
 

@@ -1,6 +1,6 @@
 {
   "name": "pieru",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "MongoDB query compatible object match",
   "keywords": [
     "query",

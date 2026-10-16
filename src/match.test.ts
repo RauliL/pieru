@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { Query, match, QueryOptions } from "./index";
+import { match } from "./match.js";
+import { Query, QueryOptions } from "./types.js";
 
 describe("match()", () => {
   it("true when equal", function () {

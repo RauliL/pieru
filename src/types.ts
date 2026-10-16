@@ -22,7 +22,7 @@ export type QueryFunctionMapping = {
   // And the rest.
   $exists: boolean;
   $mod: [number, number];
-  $regex: string;
+  $regex: string | RegExp;
   $options: any;
   $where: string | ((obj: any) => boolean);
   $elemMatch: Query;
